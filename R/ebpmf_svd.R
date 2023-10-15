@@ -3,7 +3,21 @@
 #' @param nu the number of singular vectors to compute
 #' @param maxiter maximum number of iterations
 #' @param tol convergence tolerance
-#' @details
+#' @details Runs a version of EBPMF where the prior families for L and F are point masses
+#' The EBMF step is equivalent to performing an SVD
+#' @examples
+#' set.seed(1)
+#' n= 10
+#' p = 20
+#' K = 4
+#' LL = matrix(rnorm(n*K),nrow=n)
+#' FF = matrix(rnorm(p*K),nrow=p)
+#' mu = matrix(LL %*% t(FF),ncol=p, nrow=n)
+#' X= matrix(rpois(n*p,exp(mu)), ncol=p, nrow=n)
+#' fit = ebpmf_svd(X,nu=5)
+#' fit$tau # should be big
+#' plot(fit$obj) # should show converged
+#' @export
 ebpmf_svd = function(X,nu,maxiter=100,tol=1e-3){
   fit = ebpmf_init(X)
   for(i in 1:maxiter){
