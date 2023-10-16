@@ -15,6 +15,8 @@ ebpmf_init= function(X,M = NULL, B=NULL){
   else
     fit$B = B
 
+  fit$udv = NULL
+
   fit$V = zero_mat # equivalent to initializing q_mu to a point mass at M
 
   res = fit$M-fit$B

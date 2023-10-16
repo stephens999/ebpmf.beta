@@ -26,3 +26,7 @@ converged = function(fit,tol=1e-3){
   else
     return(FALSE)
 }
+
+expand_svd = function(s){
+  return(s$u %*% (s$d * t(s$v)))
+}

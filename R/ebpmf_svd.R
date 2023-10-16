@@ -3,6 +3,7 @@
 #' @param nu the number of singular vectors to compute
 #' @param maxiter maximum number of iterations
 #' @param tol convergence tolerance
+#' @param method string indicating method to use for update, either "als" (alternating least squares) or "naive" (which directly calls svd)
 #' @details Runs a version of EBPMF where the prior families for L and F are point masses
 #' The EBMF step is equivalent to performing an SVD
 #' @examples
@@ -18,11 +19,16 @@
 #' fit$tau # should be big
 #' plot(fit$obj) # should show converged
 #' @export
-ebpmf_svd = function(X,nu,maxiter=100,tol=1e-3){
+ebpmf_svd = function(X,nu,maxiter=100,tol=1e-3,method=c("naive","als")){
+  method = match.arg(method)
   fit = ebpmf_init(X)
+  fit = ebpmf_init_udv(fit,nu)
   for(i in 1:maxiter){
     fit = ebpmf_update_mu(fit)
-    fit = ebpmf_update_svd(fit,nu=nu)
+    if(method == "als")
+      fit = ebpmf_update_svd_als(fit)
+    else if(method=="naive")
+      fit = ebpmf_update_svd_naive(fit,nu)
     fit = ebpmf_update_obj(fit)
     if(converged(fit,tol))
       break
