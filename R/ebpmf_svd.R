@@ -1,5 +1,5 @@
 #' @title Simple SVD version of EBPMF
-#' @param X a matrix of counts
+#' @param X a matrix of counts (or a previous ebpmf fit to such a matrix, used as an initialization)
 #' @param nu the number of singular vectors to compute
 #' @param maxiter maximum number of iterations
 #' @param tol convergence tolerance
@@ -19,14 +19,25 @@
 #' fit$tau # should be big
 #' plot(fit$obj) # should show converged
 #' @export
-ebpmf_svd = function(X,nu,maxiter=100,tol=1e-3,method=c("naive","als")){
+ebpmf_svd = function(X,nu,maxiter=100,tol=1e-3,method=c("naive","als"),maxiter.mu = 10, est.tau.dim = 0){
   method = match.arg(method)
-  fit = ebpmf_init(X)
-  fit = ebpmf_init_udv(fit,nu)
+  if(is.matrix(X)){
+    fit = ebpmf_init(X, est.tau.dim = est.tau.dim)
+  } else { # X is a previous fit
+    fit=X
+    fit$est.tau.dim = est.tau.dim # allows to initialize with a different tau structure
+    fit = ebpmf_update_tau(fit)
+    fit$obj = -Inf
+  }
+
   for(i in 1:maxiter){
-    fit = ebpmf_update_mu(fit)
-    if(method == "als")
+    fit = ebpmf_update_mu(fit,maxiter = maxiter.mu)
+    if(method == "als"){
+      if(i==1){
+        fit = ebpmf_init_udv(fit,nu)
+      } # initalize udv
       fit = ebpmf_update_svd_als(fit)
+    }
     else if(method=="naive")
       fit = ebpmf_update_svd_naive(fit,nu)
     fit = ebpmf_update_obj(fit)

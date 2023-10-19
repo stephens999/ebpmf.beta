@@ -1,4 +1,4 @@
-ebpmf_init= function(X,M = NULL, B=NULL){
+ebpmf_init= function(X,M = NULL, B=NULL, est.tau.dim = 0){
   fit = list()
   fit$X = X
   fit$n = nrow(X)
@@ -11,7 +11,7 @@ ebpmf_init= function(X,M = NULL, B=NULL){
     fit$M = M
 
   if(is.null(B))
-    fit$B = zero_mat
+    fit$B = zero_mat + mean(fit$M)
   else
     fit$B = B
 
@@ -19,12 +19,10 @@ ebpmf_init= function(X,M = NULL, B=NULL){
 
   fit$V = zero_mat # equivalent to initializing q_mu to a point mass at M
 
-  res = fit$M-fit$B
-  fit$tau = 1/mean((res)^2+fit$V)
-  fit$est.tau.dim = 0 #  Because the svd assumes all tau are equal;
-  # could change to column-specific, but would need to change SVD routine
+  fit$est.tau.dim = est.tau.dim
+  fit = ebpmf_update_tau(fit,sub=(X>0))
 
-  fit$elbo = sum(dnorm(res,mean=0,sd=sqrt(1/fit$tau),log=TRUE)) - sum(fit$V*fit$tau/2) #elbo for the svd (point mass on B) is E_mu log(p(mu|B,tau))
+  fit$elbo = svd_elbo(fit)
 
   #fit = ebpmf_update_svd(fit)
   fit$obj = -Inf

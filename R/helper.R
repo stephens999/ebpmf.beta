@@ -21,7 +21,7 @@ get_sigma2 = function(fit){
 
 converged = function(fit,tol=1e-3){
   o = rev(fit$obj)
-  if(o[1]-o[2]< tol)
+  if(abs(o[1]-o[2])< tol)
     return(TRUE)
   else
     return(FALSE)
@@ -29,4 +29,15 @@ converged = function(fit,tol=1e-3){
 
 expand_svd = function(s){
   return(s$u %*% (s$d * t(s$v)))
+}
+
+svd_elbo = function(fit){
+  res = fit$M-fit$B
+  if(fit$est.tau.dim==0){ # constant tau
+    return(-0.5*fit$n*fit$p*log(2*pi/fit$tau) -
+             0.5*fit$tau*sum(res^2) - 0.5* fit$tau* sum(fit$V))
+  } else { # column-specific tau
+    return(-0.5*fit$n*sum(log(2*pi/fit$tau)) -
+             0.5*sum(fit$tau*colSums(res^2)) - 0.5* sum(fit$tau* colSums(fit$V)))
+  }
 }

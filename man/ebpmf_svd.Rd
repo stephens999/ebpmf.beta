@@ -4,16 +4,26 @@
 \alias{ebpmf_svd}
 \title{Simple SVD version of EBPMF}
 \usage{
-ebpmf_svd(X, nu, maxiter = 100, tol = 0.001)
+ebpmf_svd(
+  X,
+  nu,
+  maxiter = 100,
+  tol = 0.001,
+  method = c("naive", "als"),
+  maxiter.mu = 10,
+  est.tau.dim = 0
+)
 }
 \arguments{
-\item{X}{a matrix of counts}
+\item{X}{a matrix of counts (or a previous ebpmf fit to such a matrix, used as an initialization)}
 
 \item{nu}{the number of singular vectors to compute}
 
 \item{maxiter}{maximum number of iterations}
 
 \item{tol}{convergence tolerance}
+
+\item{method}{string indicating method to use for update, either "als" (alternating least squares) or "naive" (which directly calls svd)}
 }
 \description{
 Simple SVD version of EBPMF
